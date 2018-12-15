@@ -3,20 +3,20 @@ import model.networks as networks
 import time
 
 
-class hourglass():
-    def __init__(self, block_number, layers, w_dim, lr):
+class Stacked_Hourglass():
+    def __init__(self, block_number, layers, out_dim, lr):
         self.block_number = block_number
         self.layers = layers
-        self.w_dim = w_dim
+        self.out_dim = out_dim
         self.lr = lr
         self.input = tf.placeholder(tf.float32, shape=[], name='input_image')
         self.label = tf.placeholder(tf.float32)
         self.saver = tf.train.Saver(max_to_keep=2)
 
-        inter0 = networks.set_res(input=self.input, layers=layers, w_dim=w_dim, scope='res0')
+        inter0 = networks.set_hourglass(input=self.input, layers=layers, out_dim=out_dim, scope='hourglass0')
         self.inter = [inter0]
         for i in range(1, self.block_number):
-            inter = networks.set_res(input=self.inter[i], layers=layers, w_dim=w_dim, scope='res'+str(i))
+            inter = networks.set_hourglass(input=self.inter[i], layers=layers, out_dim=out_dim, scope='hourglass'+str(i))
             self.inter.append(inter)
         self.output = self.inter[self.block_number-1]
 
