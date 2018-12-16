@@ -30,7 +30,7 @@ def set_hourglass(input, layers, out_dim, scope=None):
             conv_out = set_res(input=input, out_dim=out_dim, scope='res_module'+str(layers))
             res_out = tf.nn.max_pool(conv_out, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
             res_out = set_hourglass(input=res_out, layers=layers-1, out_dim=out_dim, scope=scope)
-            res_out = tf.image.resize_nearest_neighbor(res_out, tf.shape(res_out)[1:3]*2, 'up_sample')
+            res_out = tf.image.resize_nearest_neighbor(res_out, tf.shape(res_out)[1:3]*2, name='up_sample')
             output = tf.add(conv_out, res_out)
     return output
 
