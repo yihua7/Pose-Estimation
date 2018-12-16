@@ -50,7 +50,8 @@ class Stacked_Hourglass():
         self.output = tf.sigmoid(tf.reduce_sum(heat_map, 0))
         self.loss = tf.losses.mean_squared_error(self.output, self.label)
 #        self.loss = tf.nn.sigmoid_cross_entropy_with_logits(logits=self.output, labels=self.label)
-        self.optimizer = tf.train.AdamOptimizer(lr).minimize(self.loss)
+#        self.optimizer = tf.train.AdamOptimizer(lr).minimize(self.loss)
+        self.optimizer = tf.train.RMSPropOptimizer(lr).minimize(self.loss)
 
         self.saver = tf.train.Saver(max_to_keep=2)
 
