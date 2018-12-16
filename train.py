@@ -5,7 +5,7 @@ from model.hourglass_net import Stacked_Hourglass
 
 block_number = 8
 layers = 3
-lr = 0.01
+lr = 0.0001
 out_dim = 256
 point_num = 14
 maxepoch = 10001
