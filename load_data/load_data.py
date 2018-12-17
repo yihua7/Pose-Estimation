@@ -1,4 +1,5 @@
 import tensorflow as tf
+import matplotlib.pyplot as plt
 import os
 import scipy.io as scio
 import numpy as np
@@ -26,6 +27,12 @@ def load_label(filename):
     return joints
 
 
+def load_heatmap(filename):
+    data = scio.loadmat(filename)
+    heatmap = data['label']
+    return heatmap
+
+
 def joints_to_heatmap(joints):
     heatmap = np.zeros([64, 64, 14], dtype=float)
     for i in range(14):
@@ -38,6 +45,22 @@ def joints_to_heatmap(joints):
             heatmap[x][y+1][i] = 1
             heatmap[x+1][y+1][i] = 1
     return heatmap
+
+
+def plot_info(loss, accu, step):
+    plt.close('all')
+    plt.subplot(2, 1, 1)
+    plt.plot(step, loss, "b.-")
+    plt.title("Stacked HG Info")
+    plt.xlabel("Step")
+    plt.ylabel("Loss")
+
+    plt.subplot(2, 1, 2)
+    plt.plot(step, accu, "r.-")
+    plt.xlabel("Step")
+    plt.ylabel("Accuracy")
+    plt.savefig("train_info.png")
+    plt.show()
 
 
 def load_data(image_path,  label_path,  batch_size):

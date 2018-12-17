@@ -1,13 +1,18 @@
 import tensorflow as tf
 
 
-def set_conv(X, W_shape, out_dim, stride, scope=None):
+def set_conv(X, W_shape, out_dim, stride, scope=None, activate="relu"):
     with tf.variable_scope(scope or 'conv', reuse=tf.AUTO_REUSE):
         X = tf.contrib.layers.batch_norm(X, 0.9, epsilon=1e-5, activation_fn=tf.nn.relu)
         W = tf.get_variable('W', [W_shape, W_shape, X.get_shape().as_list()[3], out_dim], trainable=True, initializer=tf.random_normal_initializer(mean=0, stddev=0.1))
         b = tf.get_variable('b', out_dim, trainable=True, initializer=tf.random_normal_initializer)
         out = tf.nn.bias_add(tf.nn.conv2d(X, W, strides=[1, stride, stride, 1], padding='SAME'), b)
-        out = tf.nn.relu(out)
+        if activate == "relu":
+            out = tf.nn.leaky_relu(out)
+        elif activate == "sigmoid":
+            out = tf.nn.sigmoid(out)
+        else:
+            raise NotADirectoryError
         return out
 
 
