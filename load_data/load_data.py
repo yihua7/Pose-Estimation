@@ -20,9 +20,9 @@ def load_image(filename):
     return image
 
 
-def load_label(filename):
+def load_label(filename, keys):
     data = scio.loadmat(filename)
-    joints = data['joints']
+    joints = data[keys]
     joints = np.transpose(joints)
     return joints
 
@@ -47,7 +47,7 @@ def joints_to_heatmap(joints):
     return heatmap
 
 
-def plot_info(loss, accu, step):
+def plot_info(loss, accu, accu_last, step, name=''):
     plt.close('all')
     plt.subplot(2, 1, 1)
     plt.plot(step, loss, "b.-")
@@ -57,9 +57,10 @@ def plot_info(loss, accu, step):
 
     plt.subplot(2, 1, 2)
     plt.plot(step, accu, "r.-")
+    plt.plot(step, accu_last, "g.-")
     plt.xlabel("Step")
     plt.ylabel("Accuracy")
-    plt.savefig("train_info.png")
+    plt.savefig("train_info"+name+".png")
     plt.show()
 
 
