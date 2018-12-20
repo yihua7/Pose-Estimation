@@ -5,7 +5,7 @@ import load_data.load_data as load_data
 import visualization.visual as visual
 import os
 
-project_path = 'D:\\UserData\\DeepLearning\\Pose-Detection\\'
+project_path = 'D:\\CS\\机器学习大作业\\Pose-Detection\\'
 
 class Stacked_Hourglass():
     def __init__(self, block_number, layers, out_dim, point_num, lr, training=True, dropout_rate=0.2):
@@ -230,3 +230,27 @@ class Stacked_Hourglass():
                             right += 1
                 accuracy = right / count
                 print("Image:%4d loss:%.8f accuracy:%.6f" % (i, loss, accuracy))
+
+    def use(self, image_path):
+        config = tf.ConfigProto()
+        config.gpu_options.allow_growth = True
+        image_list = sorted(os.listdir(image_path))
+        num_data = len(image_list)
+
+        with tf.Session(config=config) as sess:
+            latest = tf.train.latest_checkpoint(project_path + 'parameters/')
+            self.saver.restore(sess, latest)
+
+            for i in range(num_data):
+                # Get Image
+                next_image = [load_data.load_image(image_path+('%04d' % (i+1))+'.jpg')]
+
+                # Get Output(Prediction)
+                output = sess.run(self.output, feed_dict={self.input: next_image})
+                output = np.squeeze(output)
+
+                # Visualization
+                visual.hotmap_visualization(output, 3, ('%04d' % (i+1)),
+                                            project_path + "visualization\\Visual_Image\\use"
+                                            +"\\", raw_image=next_image)
+

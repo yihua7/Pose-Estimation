@@ -1,7 +1,7 @@
 clc
 clear
 %%将视频转换成帧图片
-name = 'shake';
+name = 'SB';
 filename = [name, '.mp4'];
 %% 读取视频
 video_path=['./video/', filename];    
@@ -25,17 +25,19 @@ for i=1:frame_number
     
     rateh = height/256;
     ratew = width/256;
+    
+    scale = 3.8;
  
     newframe = zeros([256, 256, 3]);
     frame = double(frame);
     
     for c=1:3
-        for x=1:int8(height/4)
-            for y=1:int8(width/4)
+        for x=1:int32(height/scale)
+            for y=1:int32(width/scale)
                 sum = 0;
                 count = 0;
-                for xx=4*x-3:4*x
-                   for yy=4*y-3:4*y
+                for xx=int32(scale*x-scale+1):int32(scale*x)-1
+                   for yy=int32(scale*y-scale+1):int32(scale*y)-1
                       sum = sum + frame(xx, yy, c);
                       count = count + 1;
                    end
@@ -44,23 +46,8 @@ for i=1:frame_number
             end
         end
     end
+
     newframe = uint8(newframe);
-    
-%     for c=1:3
-%         for x=1:256
-%             for y=1:256
-%                 pixsum = 0;
-%                 count = 0;
-%                 for xx=int32(x*rateh-rateh+1):int32(x*rateh)
-%                     for yy=int32(y*ratew-ratew+1):int32(y*ratew)
-%                         pixsum = pixsum + double(frame(xx, yy, c));
-%                         count = count + 1;
-%                     end
-%                 end
-%                 newframe(x, y, c) = uint8(pixsum/count);
-%             end
-%         end
-%     end
     
     imwrite(newframe,image_name, 'jpg');
 end

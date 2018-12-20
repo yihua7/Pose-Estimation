@@ -30,5 +30,5 @@ for i in range(1, block_number):
     # model0.train(image_path, label_path, batch_size, (i + 1) * cycle + 1, True, base=i*cycle+cycle0, step=[i], augment=augment)
     print("%d layers have been trained." %i)
 
-model1.train(image_path, label_path, batch_size, (block_number + 1) * cycle + 1, True, cycle1, step='all', augment=augment)
+model0.train(image_path, label_path, batch_size, (block_number + 1) * cycle + 1, True, cycle1, step='all', augment=augment)
 print("Training End")

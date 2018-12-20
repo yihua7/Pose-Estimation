@@ -10,12 +10,14 @@ def add_color(heatmap, x, y):
 
 
 def add_line(heatmap, cdi_one, cdi_two, line_width):
+    if cdi_one[0] < 0 or cdi_one[1] >= 256 or cdi_two[0] < 0 or cdi_two[1] >= 256:
+        return heatmap
     gap_x = int(cdi_one[0]-cdi_two[0])
     gap_y = int(cdi_one[1]-cdi_two[1])
     signx = int(np.sign(gap_x))
     signy = int(np.sign(gap_y))
     # print(gap_x, '\n', gap_y)
-    if(gap_x != 0):
+    if gap_x != 0:
         for i in range(0, abs(gap_x)):
             x = int(cdi_two[0] + i * signx)  # np.sign(cdi_two[0]-cdi_one[0])
             y = int(cdi_two[1] + abs(i*gap_y/gap_x)*signy)
@@ -60,6 +62,8 @@ def hotmap_visualization(hotmaps, point_size, filename='image', path='', line_wi
         assert max_y != -1 and max_x != -1
         if max_value >= threshold:
             max_coords.append([max_y * 4, max_x * 4])  # 换了一下顺序。可能python与matlab的index方式不同
+        else:
+            max_coords.append([-1, -1])
 
     # 把原图的特定位置染色
     if raw_image is None:
@@ -69,6 +73,8 @@ def hotmap_visualization(hotmaps, point_size, filename='image', path='', line_wi
     for max_coord in max_coords:
         max_x = max_coord[0]
         max_y = max_coord[1]
+        if max_x < 0 or max_x >= 256 or max_y < 0 or max_y >= 256:
+            continue
         # 找到点的起始x、结束x，起始y、结束y
         start_x = max(max_x - point_size, 0)
         stop_x = min(max_x + point_size, 255)
@@ -99,4 +105,3 @@ def hotmap_visualization(hotmaps, point_size, filename='image', path='', line_wi
     if not os.path.exists(path):
         os.makedirs(path)
     img.save(path + filename + ".jpg")
-    img.show()
