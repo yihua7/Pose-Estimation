@@ -7,7 +7,7 @@ out_dim = 256
 point_num = 14
 maxepoch = 10001
 
-image_path = 'D:\\CS\\机器学习大作业\\Pose-Detection\\data_set\\augmented_dataset\\images_random_padding_LB\\'
+image_path = 'D:\\CS\\机器学习大作业\\Pose-Detection\\data_set\\augmented_dataset\\images_random_padding_LB\\ori\\'
 label_path = 'D:\\CS\\机器学习大作业\\Pose-Detection\\data_set\\augmented_dataset\\joints_LB.mat'
 batch_size = 1
 

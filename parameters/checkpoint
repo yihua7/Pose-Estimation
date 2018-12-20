@@ -1,3 +1,3 @@
-model_checkpoint_path: "hourglass_model-15000"
-all_model_checkpoint_paths: "hourglass_model-14800"
-all_model_checkpoint_paths: "hourglass_model-15000"
+model_checkpoint_path: "hourglass_model-45000"
+all_model_checkpoint_paths: "hourglass_model-44800"
+all_model_checkpoint_paths: "hourglass_model-45000"

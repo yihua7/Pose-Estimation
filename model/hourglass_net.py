@@ -60,8 +60,8 @@ class Stacked_Hourglass():
         self.loss_sum = tf.nn.l2_loss(tf.subtract(heat_map, self.label))
         self.loss = tf.nn.l2_loss(tf.subtract(self.output, self.label))
 
-        self.optimizer = tf.train.RMSPropOptimizer(lr).minimize(self.loss)
-        self.optimizer_all = tf.train.RMSPropOptimizer(lr).minimize(self.loss_sum)
+        # self.optimizer = tf.train.RMSPropOptimizer(lr).minimize(self.loss)
+        # self.optimizer_all = tf.train.RMSPropOptimizer(lr).minimize(self.loss_sum)
 
         var = []
         step_loss = []
