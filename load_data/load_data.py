@@ -4,6 +4,7 @@ import os
 import scipy.io as scio
 import numpy as np
 from PIL import Image
+import json
 
 '''
 def load_image(filename):
@@ -45,6 +46,45 @@ def joints_to_heatmap(joints):
             heatmap[x][y+1][i] = 1
             heatmap[x+1][y+1][i] = 1
     return heatmap
+
+
+def json_to_heatmap(json_path):
+    f = open(json_path, encoding='utf-8')
+    k = json.load(f)
+    k_cor = k['people'][0]['pose_keypoints_2d']
+    k_cor = np.reshape(k_cor, [25, 3])
+    heatmap = np.zeros([64, 64, 14], dtype=float)
+    joint_dic = [11, 10, 9, 12, 13, 14, 4, 3, 2, 5, 6, 7, 1, 0]
+    for i in range(14):
+        x = int(k_cor[joint_dic[i]][0]/4)
+        y = int(k_cor[joint_dic[i]][1]/4)
+
+        heatmap[x][y][i] = 1
+        heatmap[x + 1][y][i] = .8
+        heatmap[x][y + 1][i] = .8
+        heatmap[x - 1][y][i] = .8
+        heatmap[x][y - 1][i] = .8
+        heatmap[x + 1][y + 1][i] = .5
+        heatmap[x + 1][y - 1][i] = .5
+        heatmap[x - 1][y - 1][i] = .5
+        heatmap[x - 1][y + 1][i] = .5
+
+    return heatmap
+
+
+def json_to_joints(json_path):
+    f = os.listdir(json_path)
+    joints = []
+    for i in f:
+        jsonfile = json_path + '\\' + i
+        file = open(jsonfile, encoding='utf-8')
+        k = json.load(file)
+        k_cor = k['people'][0]['pose_keypoints_2d']
+        k_cor = np.reshape(k_cor, [25, 3])
+        k_cor_ = np.array([k_cor[j] for j in [11, 10, 9, 12, 13, 14, 4, 3, 2, 5, 6, 7, 1, 0]])
+        joints.append(k_cor)
+    joints = np.array(joints)
+    return joints
 
 
 def plot_info(loss, accu, accu_last, step, name=''):

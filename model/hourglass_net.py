@@ -61,6 +61,7 @@ class Stacked_Hourglass():
         self.loss = tf.nn.l2_loss(tf.subtract(self.output, self.label))
 
         self.optimizer = tf.train.RMSPropOptimizer(lr).minimize(self.loss)
+        self.optimizer_all = tf.train.RMSPropOptimizer(lr).minimize(self.loss_sum)
 
         var = []
         step_loss = []
@@ -72,15 +73,14 @@ class Stacked_Hourglass():
 
         self.saver = tf.train.Saver(max_to_keep=2)
 
-    def train(self, image_path, label_path, batch_size, maxepoch, continue_train=False, base=0, step='all', augment=False):
+    def train(self, image_path, label_path, batch_size, maxepoch, continue_train=False, base=0, step='all', data_set='lsp'):
 
         if step == 'all':
             # Output is from last layer
-            optimizer = self.optimizer
-            loss_tensor = self.loss
+            optimizer = self.optimizer_all
+            loss_tensor = tf.reduce_sum(self.step_loss)
             output_tensor_mean = tf.reduce_mean(self.step_output, 0)
             output_tensor_last = self.output
-            output_tensor = self.output
         else:
             # Output is from step layer
             loss_tensor = tf.reduce_sum(tf.gather(self.step_loss, step))
@@ -91,17 +91,27 @@ class Stacked_Hourglass():
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
 
-        if augment:
+        if data_set == 'augment':
+            num_data = 2000
             joints_lb = load_data.load_label(label_path + 'joints_LB.mat', 'joints_LB')
             joints_lt = load_data.load_label(label_path + 'joints_LT.mat', 'joints_LT')
             joints_rb = load_data.load_label(label_path + 'joints_RB.mat', 'joints_RB')
             joints_rt = load_data.load_label(label_path + 'joints_RT.mat', 'joints_RT')
             joints = [joints_lb, joints_lt, joints_rb, joints_rt]
             subset_name = ["_LB", "_LT", "_RB", "_RT"]
-        else:
+        elif data_set == 'lsp':
+            num_data = 2000
             joints = load_data.load_label(label_path + 'joints.mat', 'joints')
+        elif data_set == 'Didi':
+            num_data = 400
+            num_data_list = {'SB': 287, 'sb_taiji': 383, 'shake': 218, 'taiji': 400}
+            subset_name = ['SB', 'sb_taiji', 'shake', 'taiji']
+            joints_SB = load_data.json_to_joints(label_path + 'SB\\json\\')
+            joints_sb_taiji = load_data.json_to_joints(label_path + 'sb_taiji\\json\\')
+            joints_shake = load_data.json_to_joints(label_path + 'shake\\json\\')
+            joints_taiji = load_data.json_to_joints(label_path + 'taiji\\json\\')
+            joints = {'SB': joints_SB, 'sb_taiji': joints_sb_taiji, 'shake': joints_shake, 'taiji': joints_taiji}
 
-        num_data = 2000
         start_data = 0
 
         with tf.Session(config=config) as sess:
@@ -128,7 +138,7 @@ class Stacked_Hourglass():
 
                 # Load Image and Label
                 for j in range(start_data, start_data+batch_size):
-                    if augment:
+                    if data_set == 'augment':
                         # Randomly Select a Subset of Dataset
                         subset_num = np.random.randint(4)
                         # Load Image
@@ -139,7 +149,7 @@ class Stacked_Hourglass():
                         label.append(next_heatmap)
                         # Load Joints
                         joints_batch.append(joints[subset_num][j])
-                    else:
+                    elif data_set == 'lsp':
                         # Load Image
                         next_image = load_data.load_image(image_path+('%04d' % (j+1))+'.jpg')
                         image.append(next_image)
@@ -148,6 +158,18 @@ class Stacked_Hourglass():
                         label.append(next_heatmap)
                         # Load Joints
                         joints_batch.append(joints[j])
+                    elif data_set == 'Didi':
+                        subset_num = np.random.randint(4)
+                        name = subset_name[subset_num]
+                        # Load Image
+                        next_image = load_data.load_image(image_path + name + '\\ori\\' + ('\\%04d' % (j % num_data_list[name] + 1))+'.jpg')
+                        image.append(next_image)
+                        # Load Heatmap
+                        next_heatmap = load_data.json_to_heatmap(image_path + name + '\\json\\'+ ('\\%04d' % ((j % num_data_list[name] + 1)))+'_keypoints.json')
+                        label.append(next_heatmap)
+                        # Load Joints
+                        joints_batch.append(joints[name][j % num_data_list[name]])
+
                 start_data += batch_size
 
                 # Optimization
@@ -167,7 +189,7 @@ class Stacked_Hourglass():
                 right_last = count
                 for b in range(batch_size):
                     for j in range(14):
-                        if not joints_batch[b][j][2]:
+                        if not joints_batch[b][j][2] or data_set == 'Didi':
                             count += 1
                             if np.abs(joints_index[b][j][0] - joints_batch[b][j][0]/4) < 3 and np.abs(joints_index[b][j][1] - joints_batch[b][j][1]/4) < 3:
                                 right += 1
@@ -253,4 +275,13 @@ class Stacked_Hourglass():
                 visual.hotmap_visualization(output, 3, ('%04d' % (i+1)),
                                             project_path + "visualization\\Visual_Image\\use"
                                             +"\\", raw_image=next_image)
+
+    def test_label(self):
+        test_path = 'D:\\CS\\机器学习大作业\\Pose-Detection\\data_set\\video_frame_resize\\SB\\'
+        joints_SB = load_data.json_to_joints(test_path + 'json\\')
+        image = load_data.load_image(test_path + 'ori\\0001.jpg')
+        heatmap = load_data.json_to_heatmap(test_path + 'json\\0001_keypoints.json')
+        visual.hotmap_visualization(heatmap, 3, "test_label",
+                                    project_path + "visualization\\Visual_Image\\test_label"
+                                    + "\\", raw_image=image)
 

@@ -10,4 +10,5 @@ maxepoch = 10001
 image_path = 'D:\\CS\\机器学习大作业\\Pose-Detection\\data_set\\video_frame_resize\\SB\\'
 
 model = Stacked_Hourglass(block_number=block_number, layers=layers, out_dim=out_dim, point_num=point_num, lr=lr, training=False)
-model.use(image_path)
+model.test_label()
+# model.use(image_path)
