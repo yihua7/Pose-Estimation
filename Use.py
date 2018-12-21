@@ -11,4 +11,11 @@ image_path = 'D:\\CS\\机器学习大作业\\Pose-Detection\\data_set\\video_fra
 
 model = Stacked_Hourglass(block_number=block_number, layers=layers, out_dim=out_dim, point_num=point_num, lr=lr, training=False)
 # model.test_label()
-model.use(image_path)
+image_path = 'D:\\CS\\机器学习大作业\\Pose-Detection\\data_set\\video_frame_resize\\SB\\ori\\'
+model.use(image_path, 'SB')
+
+image_path = 'D:\\CS\\机器学习大作业\\Pose-Detection\\data_set\\video_frame_resize\\taiji\\ori\\'
+model.use(image_path, 'taiji')
+
+image_path = 'D:\\CS\\机器学习大作业\\Pose-Detection\\data_set\\video_frame_resize\\sb_taiji\\ori\\'
+model.use(image_path, 'sb_taiji')

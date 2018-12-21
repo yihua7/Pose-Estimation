@@ -60,8 +60,8 @@ class Stacked_Hourglass():
         self.loss_sum = tf.nn.l2_loss(tf.subtract(heat_map, self.label))
         self.loss = tf.nn.l2_loss(tf.subtract(self.output, self.label))
 
-        # self.optimizer = tf.train.RMSPropOptimizer(lr).minimize(self.loss)
-        # self.optimizer_all = tf.train.RMSPropOptimizer(lr).minimize(self.loss_sum)
+        self.optimizer = tf.train.RMSPropOptimizer(lr).minimize(self.loss)
+        self.optimizer_all = tf.train.RMSPropOptimizer(lr).minimize(self.loss_sum)
 
         var = []
         step_loss = []
@@ -202,7 +202,7 @@ class Stacked_Hourglass():
                 if i % 1001 == 0:
                     visual.hotmap_visualization(output[0], 3, "image" + str(i),
                                                 project_path + "visualization\\Visual_Image\\Step"
-                                                + str(step) + "\\", raw_image=image[0])
+                                                + str(step) + "\\" + data_set + '\\', raw_image=image[0])
 
                 # Print Training Information
                 if i % 200 == 0 and i != 0:
@@ -253,7 +253,7 @@ class Stacked_Hourglass():
                 accuracy = right / count
                 print("Image:%4d loss:%.8f accuracy:%.6f" % (i, loss, accuracy))
 
-    def use(self, image_path):
+    def use(self, image_path, name=''):
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
         image_list = sorted(os.listdir(image_path))
@@ -273,8 +273,11 @@ class Stacked_Hourglass():
 
                 # Visualization
                 visual.hotmap_visualization(output, 3, ('%04d' % (i+1)),
-                                            project_path + "visualization\\Visual_Image\\use"
+                                            project_path + "visualization\\Visual_Image\\use\\"+name
                                             +"\\", raw_image=next_image)
+                visual.hotmap_visualization(output, 3, ('%04d' % (i + 1)),
+                                            project_path + "visualization\\Visual_Image\\use\\" + name
+                                            + "_skeleton\\")
 
     def test_label(self):
         test_path = 'D:\\CS\\机器学习大作业\\Pose-Detection\\data_set\\video_frame_resize\\SB\\'
